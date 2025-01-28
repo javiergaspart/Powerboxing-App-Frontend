@@ -28,12 +28,12 @@ class AppRoutes {
       
       // HomeScreen, assuming you pass some required arguments (user or token)
       case dashboard:
-        final User user = settings.arguments as User;  // Extract the user object from the arguments
+        final UserModel user = settings.arguments as UserModel;  // Extract the user object from the arguments
         return MaterialPageRoute(builder: (_) => HomeScreen(user: user));  // Pass the user to the HomeScreen
 
       // User Profile Screen
       case profile:
-        final User user = settings.arguments as User;  // Extract the user object from the arguments
+        final UserModel user = settings.arguments as UserModel;  // Extract the user object from the arguments
         return MaterialPageRoute(builder: (_) => MyProfileScreen(user: user,));
 
       // Location Selection Screen

@@ -5,7 +5,7 @@ import '../../models/user_model.dart'; // Ensure you import the User model
 
 class ReservationSuccessfulScreen extends StatelessWidget {
   final DateTime reservationDate;
-  final User user; // Add User object to the constructor
+  final UserModel user; // Add User object to the constructor
 
   const ReservationSuccessfulScreen({
     Key? key,

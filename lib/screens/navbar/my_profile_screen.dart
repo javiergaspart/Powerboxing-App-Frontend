@@ -5,7 +5,7 @@ import '../../widgets/energy_bar_chart.dart';
 import '../../models/user_model.dart';
 
 class MyProfileScreen extends StatefulWidget {
-  final User user;
+  final UserModel user;
 
   const MyProfileScreen({Key? key, required this.user}) : super(key: key);
 

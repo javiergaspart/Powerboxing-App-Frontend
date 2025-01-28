@@ -2,13 +2,13 @@ import 'package:flutter/material.dart';
 import '../models/user_model.dart';
 
 class UserProvider with ChangeNotifier {
-  User? _user;  // The current user object
+  UserModel? _user;  // The current user object
 
   // Getter for the current user
-  User? get user => _user;
+  UserModel? get user => _user;
 
   // Method to set the user, possibly after login
-  void setUser(User newUser) {
+  void setUser(UserModel newUser) {
     _user = newUser;
     notifyListeners();  // Notify listeners that the user data has changed
   }

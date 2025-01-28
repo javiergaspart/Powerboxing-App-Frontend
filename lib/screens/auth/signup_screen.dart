@@ -1,58 +1,9 @@
 import 'package:flutter/material.dart';
-import '../../services/auth_service.dart';
-import '../../models/user_model.dart';
-import '../dashboard/home_screen.dart'; // Assuming this is the home screen after signup
 
-class SignUpScreen extends StatefulWidget {
-  @override
-  _SignUpScreenState createState() => _SignUpScreenState();
-}
-
-class _SignUpScreenState extends State<SignUpScreen> {
-  final _authService = AuthService();
-  final _emailController = TextEditingController();
-  final _usernameController = TextEditingController();
-  final _passwordController = TextEditingController();
-  final _phoneController = TextEditingController();  // Added phone number controller
-  bool _isLoading = false;
-
-  // Function to handle signup
-  Future<void> _signUp() async {
-    setState(() {
-      _isLoading = true;
-    });
-
-    try {
-      print({
-        'username': _usernameController.text,
-        'email': _emailController.text,
-        'password': _passwordController.text,
-        'phone': _phoneController.text,  // Include phone number
-      });
-
-      User user = await _authService.signUp(
-        _usernameController.text,
-        _emailController.text,
-        _passwordController.text,
-        _phoneController.text,  // Pass phone number
-      );
-
-      // Navigate to home screen after successful signup
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => HomeScreen(user: user)), // Pass the 'user' object
-      );
-    } catch (e) {
-      // Show an error message if signup fails
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Signup failed: ${e.toString()}')),
-      );
-    } finally {
-      setState(() {
-        _isLoading = false;
-      });
-    }
-  }
+class SignupScreen extends StatelessWidget {
+  final TextEditingController _usernameController = TextEditingController();
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -61,46 +12,26 @@ class _SignUpScreenState extends State<SignUpScreen> {
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             TextField(
-              controller: _emailController,
-              decoration: InputDecoration(
-                labelText: 'Email',
-                border: OutlineInputBorder(),
-              ),
-            ),
-            SizedBox(height: 16),
-            TextField(
               controller: _usernameController,
-              decoration: InputDecoration(
-                labelText: 'Username',
-                border: OutlineInputBorder(),
-              ),
+              decoration: InputDecoration(labelText: 'Username'),
             ),
-            SizedBox(height: 16),
+            TextField(
+              controller: _emailController,
+              decoration: InputDecoration(labelText: 'Email'),
+            ),
             TextField(
               controller: _passwordController,
+              decoration: InputDecoration(labelText: 'Password'),
               obscureText: true,
-              decoration: InputDecoration(
-                labelText: 'Password',
-                border: OutlineInputBorder(),
-              ),
             ),
-            SizedBox(height: 16),
-            TextField(
-              controller: _phoneController,
-              keyboardType: TextInputType.phone,
-              decoration: InputDecoration(
-                labelText: 'Phone Number',  // Added phone number input
-                border: OutlineInputBorder(),
-              ),
-            ),
-            SizedBox(height: 16),
-            _isLoading
-                ? CircularProgressIndicator()
-                : ElevatedButton(
-              onPressed: _signUp,
+            SizedBox(height: 20),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.pushReplacementNamed(context, '/dashboard');
+              },
               child: Text('Sign Up'),
             ),
           ],
@@ -109,3 +40,4 @@ class _SignUpScreenState extends State<SignUpScreen> {
     );
   }
 }
+

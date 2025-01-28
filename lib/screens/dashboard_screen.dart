@@ -10,7 +10,7 @@ class DashboardScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // Get the user from the UserProvider
-    User? user = Provider.of<user_provider.UserProvider>(context).user;  // Use the alias here
+    UserModel? user = Provider.of<user_provider.UserProvider>(context).user;  // Use the alias here
 
     if (user == null) {
       // Handle the case where user is not available
@@ -23,7 +23,7 @@ class DashboardScreen extends StatelessWidget {
         children: [
           // Pass the user to the HomeScreen
           HomeScreen(user: user),
-          ReservationScreen(),
+          ReservationScreen(user: user),  // Replace UserModel with user
           MembershipScreen(),
         ],
       ),

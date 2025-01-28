@@ -10,7 +10,7 @@ class UserService {
   final String baseUrl = AppUrls.baseUrl;
 
   // Get user profile data
-  Future<User?> getUserProfile(String token) async {
+  Future<UserModel?> getUserProfile(String token) async {
     try {
       Response response = await _dio.get(
         '$baseUrl/user/profile',
@@ -21,7 +21,7 @@ class UserService {
 
       // If successful, parse the response and return a UserModel
       if (response.statusCode == 200) {
-        return User.fromJson(response.data);
+        return UserModel.fromJson(response.data);
       } else {
         throw Exception('Failed to load user profile');
       }
@@ -32,7 +32,7 @@ class UserService {
   }
 
   // Update user profile
-  Future<User?> updateUserProfile({
+  Future<UserModel?> updateUserProfile({
     required String token,
     required String name,
     required String email,
@@ -55,7 +55,7 @@ class UserService {
 
       // If the update is successful, return the updated UserModel
       if (response.statusCode == 200) {
-        return User.fromJson(response.data);
+        return UserModel.fromJson(response.data);
       } else {
         throw Exception('Failed to update user profile');
       }

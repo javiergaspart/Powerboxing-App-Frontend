@@ -1,94 +1,63 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-import 'package:fitboxing_app/constants/urls.dart';
-import 'package:fitboxing_app/models/session_model.dart';
+import '../models/session_model.dart';
+import '../constants/urls.dart';
 
 class SessionService {
-  // Base URL for your API
-  final String baseUrl = AppUrls.baseUrl;
-
-  // Get upcoming sessions for a specific location
+  // Fetch upcoming sessions for the user
   Future<List<Session>> getUpcomingSessions(String userId) async {
     try {
-      // Update the endpoint to query by user ID
-      final response = await http.get(
-        Uri.parse('$baseUrl/sessions/upcoming?userId=$userId'), // Adjust endpoint as needed
-      );
+      final url = Uri.parse('${AppUrls.baseUrl}/sessions/upcoming/$userId');
+      final response = await http.get(url);
 
       if (response.statusCode == 200) {
-        final Map<String, dynamic> result = json.decode(response.body);
-
-        print('API Response: $result'); // Debugging: Log the response
-
-        if (result['success']) {
-          // Access data directly or handle nested structure
-          final List<dynamic> data = result['data'] is List<dynamic>
-              ? result['data']
-              : result['data']['sessions']; // Adjust if 'sessions' is nested
-
-          // Map the JSON to `Session` objects and sort by date
-          return data
-              .map((session) => Session.fromJson(session))
-              .toList()
-            ..sort((a, b) => a.date.compareTo(b.date)); // Sort by date (ascending)
-        } else {
-          throw Exception(result['error']);
-        }
+        List<dynamic> jsonResponse = json.decode(response.body);
+        return jsonResponse.map((session) => Session.fromJson(session)).toList();
+      } else if (response.statusCode == 404) {
+        // Handle case when no upcoming sessions are found
+        return [];
       } else {
-        throw Exception('Failed to load user sessions');
+        throw Exception('Failed to load upcoming sessions');
       }
     } catch (e) {
-      print('Error fetching user sessions: $e');
-      throw e;
+      print('Error fetching upcoming sessions: $e');
+      return [];
     }
   }
 
-
-
-  // Get previous sessions for a user
+  // Fetch previous sessions for the user
   Future<List<Session>> getPreviousSessions(String userId) async {
     try {
-      final response = await http.get(
-        Uri.parse('$baseUrl/sessions/previous?userId=$userId'),
-      );
-      print(userId);
-      print(response.statusCode);
+      final url = Uri.parse('${AppUrls.baseUrl}/sessions/previous/$userId');
+      final response = await http.get(url);
+
       if (response.statusCode == 200) {
-        final Map<String, dynamic> result = json.decode(response.body);
-        if (result['success']) {
-          final List<dynamic> data = result['data'];
-          return data.map((session) => Session.fromJson(session)).toList();
-        } else {
-          throw Exception(result['error']);
-        }
+        List<dynamic> jsonResponse = json.decode(response.body);
+        return jsonResponse.map((session) => Session.fromJson(session)).toList();
+      } else if (response.statusCode == 404) {
+        // Handle case when no previous sessions are found
+        return [];
       } else {
         throw Exception('Failed to load previous sessions');
       }
     } catch (e) {
       print('Error fetching previous sessions: $e');
-      throw e;
+      return [];
     }
   }
 
-  // Book a session for a user
-  Future<bool> bookSession({
-    required String userId,
-    required String location,
-    required String date,
-    required String sessionId,
-  }) async {
+  // Book a session for the user
+  Future<bool> bookSession(String userId, String sessionId, String location) async {
     try {
+      final url = Uri.parse('${AppUrls.baseUrl}/sessions/book');
       final response = await http.post(
-        Uri.parse('$baseUrl/sessions/book'),
+        url,
+        headers: {'Content-Type': 'application/json'},
         body: json.encode({
           'userId': userId,
-          'location': location,
-          'date': date,
           'sessionId': sessionId,
+          'location': location,
         }),
-        headers: {
-          'Content-Type': 'application/json',
-        },
       );
 
       if (response.statusCode == 200) {
@@ -98,45 +67,24 @@ class SessionService {
       }
     } catch (e) {
       print('Error booking session: $e');
-      throw e;
+      return false;
     }
   }
 
-  // Get session details (for showing reports or other session-specific data)
-  Future<Session> getSessionDetails(String sessionId) async {
+  // Cancel a booked session for the user
+  Future<bool> cancelSession(String bookingId) async {
     try {
-      final response = await http.get(
-        Uri.parse('$baseUrl/sessions/$sessionId'),
-      );
+      final url = Uri.parse('${AppUrls.baseUrl}/sessions/cancel/$bookingId');
+      final response = await http.delete(url);
 
       if (response.statusCode == 200) {
-        final Map<String, dynamic> data = json.decode(response.body);
-        return Session.fromJson(data);
+        return true; // Cancellation successful
       } else {
-        throw Exception('Failed to load session details');
+        throw Exception('Failed to cancel session');
       }
     } catch (e) {
-      print('Error fetching session details: $e');
-      throw e;
-    }
-  }
-  // Reserve a session for a user
-  // In your SessionService's reserveSlot method
-
-
-
-  // Check session availability (if slots are available)
-  Future<bool> checkSessionAvailability(String sessionId) async {
-    try {
-      final response = await http.get(Uri.parse('$baseUrl/api/sessions/check-availability/$sessionId'));
-
-      if (response.statusCode == 200) {
-        return json.decode(response.body)['isAvailable'];
-      } else {
-        throw Exception('Failed to check session availability');
-      }
-    } catch (error) {
-      throw Exception('Error checking session availability: $error');
+      print('Error canceling session: $e');
+      return false;
     }
   }
 }

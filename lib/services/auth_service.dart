@@ -5,7 +5,7 @@ import '../constants/urls.dart';
 
 class AuthService {
   // Login user
-  Future<User> login(String email, String password) async {
+  Future<UserModel> login(String email, String password) async {
     print('Login called with email: $email');
     final url = Uri.parse('${AppUrls.baseUrl}/auth/login');
     print('Making POST request to $url');
@@ -23,7 +23,7 @@ class AuthService {
     print('Response received: ${response.statusCode}, Body: ${response.body}');
     if (response.statusCode == 200) {
       var userJson = json.decode(response.body);
-      User user = User.fromJson(userJson['user']);
+      UserModel user = UserModel.fromJson(userJson['user']);
       print('Login successful');
       return user;
     } else {
@@ -33,7 +33,7 @@ class AuthService {
   }
 
   // Sign up user with added phone number
-  Future<User> signUp(String username, String email, String password, String phone) async {
+  Future<UserModel> signUp(String username, String email, String password, String phone) async {
     print('SignUp called with email: $email, username: $username, phone: $phone');
     final url = Uri.parse('${AppUrls.baseUrl}/auth/register');
     print('Making POST request to $url');
@@ -53,7 +53,7 @@ class AuthService {
     print('Response received: ${response.statusCode}, Body: ${response.body}');
     if (response.statusCode == 201) {
       var userJson = json.decode(response.body);
-      User user = User.fromJson(userJson['user']);
+      UserModel user = UserModel.fromJson(userJson['user']);
       print('SignUp successful for user: $user');
       return user;
     } else {
@@ -86,7 +86,7 @@ class AuthService {
   }
 
   // Get user profile
-  Future<User> getUserProfile() async {
+  Future<UserModel> getUserProfile() async {
     print('GetUserProfile called');
     final url = Uri.parse('${AppUrls.baseUrl}/auth/profile');
     print('Making GET request to $url');
@@ -101,7 +101,7 @@ class AuthService {
     print('Response received: ${response.statusCode}, Body: ${response.body}');
     if (response.statusCode == 200) {
       print('User profile fetched successfully');
-      return User.fromJson(json.decode(response.body));
+      return UserModel.fromJson(json.decode(response.body));
     } else {
       print('Failed to fetch user profile');
       throw Exception('Failed to fetch user profile');
