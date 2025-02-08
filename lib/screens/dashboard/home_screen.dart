@@ -1,28 +1,30 @@
 import 'package:flutter/material.dart';
-import '../../models/user_model.dart';
+import 'package:fitboxing_app/models/user_model.dart';
+import 'package:fitboxing_app/screens/calendar/calendar_screen.dart';
+import 'package:fitboxing_app/screens/sessions/buy_sessions_screen.dart';
 
 class HomeScreen extends StatelessWidget {
   final UserModel user;
-
   HomeScreen({required this.user});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Dashboard')),
-      body: Padding(
-        padding: EdgeInsets.all(16.0),
+      appBar: AppBar(title: Text("Welcome, ${user.name}")),
+      body: Center(
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text('Welcome, ${user.username}', style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
-            Text('Available Sessions: ${user.sessionBalance}', style: TextStyle(fontSize: 18, color: Colors.green)),
+            Text("Email: ${user.email}"),
+            Text("Available Sessions: ${user.sessionBalance}"),
             SizedBox(height: 20),
             ElevatedButton(
-              onPressed: () {
-                Navigator.pushNamed(context, '/reserve', arguments: user);
-              },
-              child: Text('View Sessions'),
+              onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => CalendarScreen(user: user))),
+              child: Text("Book a Session"),
+            ),
+            ElevatedButton(
+              onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => BuySessionsScreen(user: user))),
+              child: Text("Buy Sessions"),
             ),
           ],
         ),
@@ -30,5 +32,3 @@ class HomeScreen extends StatelessWidget {
     );
   }
 }
-
-

@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
-import 'screens/auth/login_screen.dart';
-import 'screens/auth/signup_screen.dart';
-import 'screens/dashboard/home_screen.dart';
-import 'screens/dashboard/reservation_screen.dart';
-import 'models/user_model.dart';
+import 'package:fitboxing_app/screens/auth/login_screen.dart';
+import 'package:fitboxing_app/screens/auth/signup_screen.dart';
+import 'package:fitboxing_app/screens/dashboard/home_screen.dart';
+import 'package:fitboxing_app/screens/calendar/calendar_screen.dart';
+import 'package:fitboxing_app/screens/sessions/buy_sessions_screen.dart';
+import 'package:fitboxing_app/models/user_model.dart';
+import 'package:fitboxing_app/services/auth_service.dart';
 
 void main() {
   runApp(FitBoxingApp());
@@ -14,24 +16,28 @@ class FitBoxingApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'FitBoxing App',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
+      theme: ThemeData(primarySwatch: Colors.purple),
+      home: FutureBuilder<UserModel?>(
+        future: AuthService.getLoggedInUser(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return CircularProgressIndicator();
+          } else {
+            return snapshot.data != null
+                ? HomeScreen(user: snapshot.data!)
+                : LoginScreen();
+          }
+        },
       ),
-      initialRoute: '/',
       routes: {
-        '/': (context) => LoginScreen(),
+        '/login': (context) => LoginScreen(),
         '/signup': (context) => SignupScreen(),
-        '/dashboard': (context) {
-          final user = ModalRoute.of(context)!.settings.arguments as UserModel?;
-          return HomeScreen(user: user ?? UserModel.defaultUser());
-        },
-        '/reserve': (context) {
-          final user = ModalRoute.of(context)!.settings.arguments as UserModel?;
-          return ReservationScreen(user: user ?? UserModel.defaultUser());
-        },
+        '/dashboard': (context) => HomeScreen(user: AuthService.loggedInUser!),
+        '/calendar': (context) =>
+            CalendarScreen(user: AuthService.loggedInUser!),
+        '/buy-sessions': (context) =>
+            BuySessionsScreen(user: AuthService.loggedInUser!),
       },
     );
   }
 }
-
-

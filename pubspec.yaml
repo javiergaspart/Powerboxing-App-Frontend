@@ -19,6 +19,7 @@ dependencies:
   flutter_secure_storage: ^9.2.2
   flutter_animated_icons: ^1.0.0 # Added the flutter_animated_icons dependency
   mongo_dart: ^0.10.4
+  shared_preferences: ^2.5.1
 
   # Add other dependencies here
 

@@ -1,130 +1,34 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-import '../models/user_model.dart';
-import '../constants/urls.dart';
+import 'package:fitboxing_app/config.dart';
+import 'package:fitboxing_app/models/user_model.dart';
 
 class AuthService {
-  // Login user
-  Future<UserModel> login(String email, String password) async {
-    print('Login called with email: $email');
-    final url = Uri.parse('${AppUrls.baseUrl}/auth/login');
-    print('Making POST request to $url');
+  static UserModel? loggedInUser;
+
+  /// ✅ **FIXED**: Get Logged-In User (For Persistent Login)
+  static Future<UserModel?> getLoggedInUser() async {
+    return loggedInUser; // Returns the stored user if already logged in
+  }
+
+  /// ✅ **FIXED**: Login Function
+  static Future<UserModel?> login(String email, String password) async {
     final response = await http.post(
-      url,
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: json.encode({
-        'email': email,
-        'password': password,
+      Uri.parse('$API_BASE_URL/api/auth/login'),
+      headers: {"Content-Type": "application/json"},
+      body: jsonEncode({
+        "email": email.trim().toLowerCase(),
+        "password": password,
       }),
     );
 
-    print('Response received: ${response.statusCode}, Body: ${response.body}');
     if (response.statusCode == 200) {
-      var userJson = json.decode(response.body);
-      UserModel user = UserModel.fromJson(userJson['user']);
-      print('Login successful');
-      return user;
+      final Map<String, dynamic> data = jsonDecode(response.body);
+      loggedInUser = UserModel.fromJson(data['user']); // Store the user session
+      return loggedInUser;
     } else {
-      print('Login failed');
-      throw Exception('Failed to login');
+      print("Login Failed: ${response.body}");
+      return null;
     }
-  }
-
-  // Sign up user with added phone number
-  Future<UserModel> signUp(String username, String email, String password, String phone) async {
-    print('SignUp called with email: $email, username: $username, phone: $phone');
-    final url = Uri.parse('${AppUrls.baseUrl}/auth/register');
-    print('Making POST request to $url');
-    final response = await http.post(
-      url,
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: json.encode({
-        'username': username,
-        'email': email,
-        'password': password,
-        'phone': phone,  // Added phone number here
-      }),
-    );
-
-    print('Response received: ${response.statusCode}, Body: ${response.body}');
-    if (response.statusCode == 201) {
-      var userJson = json.decode(response.body);
-      UserModel user = UserModel.fromJson(userJson['user']);
-      print('SignUp successful for user: $user');
-      return user;
-    } else {
-      print('SignUp failed');
-      throw Exception('Failed to sign up');
-    }
-  }
-
-  // Forgot password - sends a password reset link to the user's email
-  Future<void> forgotPassword(String email) async {
-    print('ForgotPassword called with email: $email');
-    final url = Uri.parse('${AppUrls.baseUrl}/auth/forgot-password');
-    print('Making POST request to $url');
-    final response = await http.post(
-      url,
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: json.encode({
-        'email': email,
-      }),
-    );
-
-    print('Response received: ${response.statusCode}, Body: ${response.body}');
-    if (response.statusCode != 200) {
-      print('Failed to send password reset link');
-      throw Exception('Failed to send password reset link');
-    }
-    print('Password reset link sent successfully');
-  }
-
-  // Get user profile
-  Future<UserModel> getUserProfile() async {
-    print('GetUserProfile called');
-    final url = Uri.parse('${AppUrls.baseUrl}/auth/profile');
-    print('Making GET request to $url');
-    final response = await http.get(
-      url,
-      headers: {
-        'Content-Type': 'application/json',
-        // Add your authorization token if needed
-      },
-    );
-
-    print('Response received: ${response.statusCode}, Body: ${response.body}');
-    if (response.statusCode == 200) {
-      print('User profile fetched successfully');
-      return UserModel.fromJson(json.decode(response.body));
-    } else {
-      print('Failed to fetch user profile');
-      throw Exception('Failed to fetch user profile');
-    }
-  }
-
-  // Logout user
-  Future<void> logout() async {
-    print('Logout called');
-    final url = Uri.parse('${AppUrls.baseUrl}/auth/logout');
-    print('Making POST request to $url');
-    final response = await http.post(
-      url,
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    );
-
-    print('Response received: ${response.statusCode}, Body: ${response.body}');
-    if (response.statusCode != 200) {
-      print('Failed to logout');
-      throw Exception('Failed to logout');
-    }
-    print('Logout successful');
   }
 }
