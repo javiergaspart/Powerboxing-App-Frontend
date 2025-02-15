@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:fitboxing_app/services/auth_service.dart';
-import 'package:fitboxing_app/models/user_model.dart';
-import 'package:fitboxing_app/screens/dashboard/home_screen.dart';
-import 'package:fitboxing_app/screens/auth/signup_screen.dart';
+import 'package:provider/provider.dart';
 
 class LoginScreen extends StatefulWidget {
   @override
@@ -10,28 +8,25 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  final TextEditingController _emailController = TextEditingController();
-  final TextEditingController _passwordController = TextEditingController();
-  bool _isLoading = false;
+  final TextEditingController emailController = TextEditingController();
+  final TextEditingController passwordController = TextEditingController();
 
   void _login() async {
-    setState(() => _isLoading = true);
+    final authService = Provider.of<AuthService>(context, listen: false);
+    final response = await authService.login(
+      emailController.text,
+      passwordController.text,
+    );
 
-    String email = _emailController.text.trim();
-    String password = _passwordController.text.trim();
-
-    UserModel? user = await AuthService.login(email, password);
-
-    setState(() => _isLoading = false);
-
-    if (user != null) {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => HomeScreen(user: user)),
-      );
+    if (response != null && response["success"]) {
+      if (response["user"]["role"] == "trainer") {
+        Navigator.pushReplacementNamed(context, '/trainer_dashboard');
+      } else {
+        Navigator.pushReplacementNamed(context, '/user_dashboard');
+      }
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Invalid email or password.")),
+        SnackBar(content: Text(response?["message"] ?? "Login failed")),
       );
     }
   }
@@ -41,15 +36,15 @@ class _LoginScreenState extends State<LoginScreen> {
     return Scaffold(
       appBar: AppBar(title: Text("Login")),
       body: Padding(
-        padding: EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
-            TextField(controller: _emailController, decoration: InputDecoration(labelText: "Email")),
-            TextField(controller: _passwordController, decoration: InputDecoration(labelText: "Password"), obscureText: true),
+            TextField(controller: emailController, decoration: InputDecoration(labelText: "Email")),
+            TextField(controller: passwordController, decoration: InputDecoration(labelText: "Password"), obscureText: true),
             SizedBox(height: 20),
             ElevatedButton(onPressed: _login, child: Text("Login")),
             TextButton(
-              onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => SignupScreen())),
+              onPressed: () => Navigator.pushNamed(context, "/signup"),
               child: Text("Don't have an account? Sign Up"),
             ),
           ],

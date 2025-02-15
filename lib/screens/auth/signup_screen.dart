@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:fitboxing_app/services/auth_service.dart';
-import 'package:fitboxing_app/models/user_model.dart';
-import 'package:fitboxing_app/screens/dashboard/home_screen.dart';
+import 'package:provider/provider.dart';
 
 class SignupScreen extends StatefulWidget {
   @override
@@ -9,25 +8,23 @@ class SignupScreen extends StatefulWidget {
 }
 
 class _SignupScreenState extends State<SignupScreen> {
-  final TextEditingController _nameController = TextEditingController();
-  final TextEditingController _emailController = TextEditingController();
-  final TextEditingController _passwordController = TextEditingController();
+  final TextEditingController nameController = TextEditingController();
+  final TextEditingController emailController = TextEditingController();
+  final TextEditingController passwordController = TextEditingController();
 
   void _signup() async {
-    String name = _nameController.text.trim();
-    String email = _emailController.text.trim();
-    String password = _passwordController.text.trim();
+    final authService = Provider.of<AuthService>(context, listen: false);
+    final response = await authService.signUp(
+      nameController.text,
+      emailController.text,
+      passwordController.text,
+    );
 
-    UserModel? user = await AuthService.signUp(name, email, password);
-
-    if (user != null) {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => HomeScreen(user: user)),
-      );
+    if (response != null && response["success"]) {
+      Navigator.pushReplacementNamed(context, '/login');
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Signup failed. Try again.")),
+        SnackBar(content: Text(response?["message"] ?? "Signup failed")),
       );
     }
   }
@@ -37,12 +34,12 @@ class _SignupScreenState extends State<SignupScreen> {
     return Scaffold(
       appBar: AppBar(title: Text("Sign Up")),
       body: Padding(
-        padding: EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
-            TextField(controller: _nameController, decoration: InputDecoration(labelText: "Full Name")),
-            TextField(controller: _emailController, decoration: InputDecoration(labelText: "Email")),
-            TextField(controller: _passwordController, decoration: InputDecoration(labelText: "Password"), obscureText: true),
+            TextField(controller: nameController, decoration: InputDecoration(labelText: "Name")),
+            TextField(controller: emailController, decoration: InputDecoration(labelText: "Email")),
+            TextField(controller: passwordController, decoration: InputDecoration(labelText: "Password"), obscureText: true),
             SizedBox(height: 20),
             ElevatedButton(onPressed: _signup, child: Text("Sign Up")),
           ],
